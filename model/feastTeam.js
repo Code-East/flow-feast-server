@@ -7,6 +7,7 @@ class FeastTeam {
         this.team_price = team_price;
         this.business_license = business_license;
         this.address = address;
+        this.create_time = new Date();
     }
 }
 

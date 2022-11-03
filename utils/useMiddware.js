@@ -35,6 +35,7 @@ exports.useMiddware = (app) => {
         .unless({
             path: [
                 '/user/login',
+                '/user/register',
                 '/user/get_code'
             ]
         })

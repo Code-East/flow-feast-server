@@ -1,16 +1,20 @@
+const { consumers } = require('nodemailer/lib/xoauth2');
+const db = require('../dao/index')
+
+//获取header列表
 exports.getHeadList = (req, res) => {
     const userinfo = req.auth;
     let headerList;
     if (userinfo.userType === '0') {
         headerList = [
-            { path: '/index/feast_list', name: '首页', icon: 'House' },
+            { path: '/index/feast_team_page', name: '首页', icon: 'House' },
             { path: '/index/chat', name: '联系', icon: 'ChatSquare' },
-            { path: '/index/public_feast', name: '发布宴席', icon: 'Dish' },
+            { path: '/index/public_feast_page', name: '发布宴席', icon: 'Dish' },
             { path: '/index/personal', name: '个人中心', icon: 'User' },
         ]
     } else if (userinfo.userType === '1') {
         headerList = [
-            { path: '/index/feast', name: '首页', icon: 'House' },
+            { path: '/index/feast_list_page', name: '首页', icon: 'House' },
             { path: '/index/chat', name: '联系', icon: 'ChatSquare' },
             { path: '/feast_team_admin', name: '团队管理', icon: 'User' },
         ]
@@ -19,7 +23,50 @@ exports.getHeadList = (req, res) => {
     }
     res.send({
         code: 0,
-        data:headerList,
+        data: headerList,
         message: 'success'
     })
+}
+//获取Aside的数据
+exports.getAsideData = (req, res) => {
+    const userinfo = req.auth;
+    if (!userinfo) {
+        return res.err('用户未登入！')
+    }
+    if (userinfo.userType == '0') { //用户为个人用户
+        //获取用户发布的宴席数和举办宴席所花费的钱
+        const sql = 'select count(oid) as feastCount,sum(price) as price from feast_order where user_id = ?';
+        db.query(sql, userinfo.uid, (err, result) => {
+            if (err) {
+                return res.err(err);
+            }
+            if (result.length < 0) {
+                return res.err('查询失败！')
+            }
+            res.send({
+                code:0,
+                message:'success',
+                data:result[0]
+            })
+        });
+    }else if(userinfo.userType == '1'){ //用户为团队用户
+         //获取团队承办的宴席数和金额
+         const sql = 'select count(oid) as feastCount,sum(price) as price from feast_order where team_id = ?';
+         db.query(sql, userinfo.tid, (err, result) => {
+             if (err) {
+                 return res.err(err);
+             }
+             if (result.length < 0) {
+                 return res.err('查询失败！')
+             }
+             res.send({
+                 code:0,
+                 message:'success',
+                 data:result[0]
+             })
+         });
+    }else{
+        return res.err('用户类型错误！')
+    }
+
 }

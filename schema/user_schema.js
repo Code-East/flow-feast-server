@@ -6,6 +6,7 @@ const username = joi.string().pattern(/^[0-9a-zA-Z_.-]+[@][0-9a-zA-Z_.-]+([.][a-
 const psw = joi.string().pattern(/^[\S]{5,10}$/).required();
 const code = joi.string().alphanum().required();
 const userType = joi.required();
+const create_time = joi.required();
 const userpic = joi.string().min(0);
 const nickname = joi.string().min(3).max(10).required();
 const email = joi.string().pattern(/^[0-9a-zA-Z_.-]+[@][0-9a-zA-Z_.-]+([.][a-zA-Z]+){1,2}$/).required();
