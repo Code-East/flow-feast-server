@@ -23,6 +23,9 @@ exports.sendEmail = function(req,res){
     let code = Math.ceil(Math.random() * 9000 + 1000);
     //存入session
     req.session.code = code;
+    setTimeout(()=>{
+        req.session.code = null;
+    },6000)
     //发送的内容
     let options = {
         from:'2531122734@qq.com',
