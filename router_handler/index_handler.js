@@ -90,3 +90,46 @@ exports.getAsideData = (req, res) => {
     }
 
 }
+//获取用户数据
+exports.getUserData = (req, res) => {
+    const data = req.auth;
+    if (!data) {
+        return res.err('未找到用户信息')
+    }
+    let sql;
+    if (data.userType == 0) {
+        sql = 'select * from user where uid = ?';
+        db.query(sql, data.uid, (err, result) => {
+            if (err) {
+                return res.err(err);
+            }
+            if (result.length < 1) {
+                return res.err('查询用户信息失败')
+            }
+            const data = {...result[0], userType:'0'};
+            res.send({
+                code: 0,
+                message: 'success',
+                data
+            })
+        })
+    } else {
+        sql = 'select * from feast_team where tid = ?'
+        db.query(sql, data.tid, (err, result) => {
+            if (err) {
+                return res.err(err);
+            }
+            if (result.length < 1) {
+                return res.err('查询用户信息失败')
+            }
+            const data = {...result[0], userType:'1'};
+            res.send({
+                code: 0,
+                message: 'success',
+                data
+            })
+        })
+    }
+
+
+}

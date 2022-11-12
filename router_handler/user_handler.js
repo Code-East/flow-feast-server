@@ -40,7 +40,7 @@ exports.login = (req, res) => {
         }
 
         //封装一个用户 用于生成token 把密码等设置为空
-        const userinfo = { ...result[0], userType: data.userType, psw: '' };
+        const userinfo = { ...result[0], userType: data.userType };
         //存入seesion
         req.session.user = userinfo;
         //生成token 时间为24小时
@@ -93,7 +93,7 @@ exports.register = (req, res) => {
         }
         db.query(sql, user, (err, result) => {
             if (err) return res.err(err);
-    
+
             if (result.affectedRows === 1) {
                 res.send({
                     code: 0,
@@ -104,4 +104,27 @@ exports.register = (req, res) => {
             }
         });
     })
+}
+//修改用户属性
+exports.setUserAttribute = (req, res) => {
+    const data = req.query;
+    // console.log(data);
+    const userinfo = req.auth;
+    if (!data) {
+        return res.err('修改失败，请联系管理员');
+    }
+    const sql = 'update user set '+data.attribute+' = ? where uid = ?';
+    db.query(sql, [data.value, userinfo.uid], (err, result) => {
+        if (err) {
+            return res.err(err);
+        }
+        if (result.affectedRows !== 1) {
+            return res.err('修改失败，请联系管理员');
+        }
+        res.send({
+            code: 0,
+            message: '修改成功',
+        })
+    })
+
 }
