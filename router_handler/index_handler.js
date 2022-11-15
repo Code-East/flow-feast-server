@@ -3,7 +3,7 @@ const db = require('../dao/index')
 
 //获取header列表
 exports.getHeadList = (req, res) => {
-    const userinfo = req.auth;
+    const userinfo = req.query.userinfo;
     let headerList;
     if (userinfo.userType === '0') {
         headerList = [
@@ -16,7 +16,7 @@ exports.getHeadList = (req, res) => {
         headerList = [
             { path: '/index/feast_list_page', name: '首页', icon: 'House' },
             { path: '/index/chat', name: '联系', icon: 'ChatSquare' },
-            { path: '/feast_team_admin', name: '团队管理', icon: 'User' },
+            { path: '/index/feast_team_admin', name: '团队管理', icon: 'User' },
         ]
     } else {
         return res.err('用户类型有误！');
@@ -92,7 +92,7 @@ exports.getAsideData = (req, res) => {
 }
 //获取用户数据
 exports.getUserData = (req, res) => {
-    const data = req.auth;
+    const data = req.body;
     if (!data) {
         return res.err('未找到用户信息')
     }

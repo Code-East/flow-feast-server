@@ -108,13 +108,11 @@ exports.register = (req, res) => {
 //修改用户属性
 exports.setUserAttribute = (req, res) => {
     const data = req.query;
-    // console.log(data);
-    const userinfo = req.auth;
     if (!data) {
-        return res.err('修改失败，请联系管理员');
+        return res.err('修改失败，未接收到传入值');
     }
     const sql = 'update user set '+data.attribute+' = ? where uid = ?';
-    db.query(sql, [data.value, userinfo.uid], (err, result) => {
+    db.query(sql, [data.value, data.id], (err, result) => {
         if (err) {
             return res.err(err);
         }

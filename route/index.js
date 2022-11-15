@@ -5,5 +5,5 @@ const router = express.Router();
 
 router.get('/get_header_list',getHeadList);
 router.get('/get_aside_data',getAsideData);
-router.get('/get_user_data',getUserData)
+router.post('/get_user_data',getUserData);
 module.exports = router;
