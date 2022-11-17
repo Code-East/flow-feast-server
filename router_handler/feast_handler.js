@@ -56,7 +56,7 @@ exports.getFeastList = (req, res) => {
     }
     const start = (currentPage - 1) * pageSize;
 
-    const sql1 = 'select count(*) as total from feast';
+    const sql1 = 'select count(*) as total from feast where status = 1';
     db.query(sql1, (err, result) => {
         if (err) {
             return res.err(err);
