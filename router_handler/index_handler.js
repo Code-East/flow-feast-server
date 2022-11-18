@@ -16,6 +16,7 @@ exports.getHeadList = (req, res) => {
         headerList = [
             { path: '/index/feast_list_page', name: '首页', icon: 'House' },
             { path: '/index/chat', name: '联系', icon: 'ChatSquare' },
+            { path: '/index/feast_page', name: '宴席管理', icon: 'Dish' },
             { path: '/index/feast_team_admin', name: '团队管理', icon: 'User' },
         ]
     } else {

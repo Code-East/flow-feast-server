@@ -8,7 +8,9 @@ const {
     publicFeast,
     checkFeast,
     deleteFeast,
-    updataFeast
+    updataFeast,
+    getTeamFeast,
+    completeFeast
 } = require('../router_handler/feast_handler');
 
 const router = express.Router();
@@ -20,4 +22,6 @@ router.post('/public_feast',expressJoi(public_feast_schema),publicFeast);
 router.get('/check_feast',checkFeast);
 router.delete('/delete_feast',deleteFeast);
 router.post('/update_feast',updataFeast);
+router.get('/get_team_feast',getTeamFeast);
+router.get('/complete_feast',completeFeast)
 module.exports = router;

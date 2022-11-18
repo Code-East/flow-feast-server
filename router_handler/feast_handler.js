@@ -56,7 +56,7 @@ exports.getFeastList = (req, res) => {
     }
     const start = (currentPage - 1) * pageSize;
 
-    const sql1 = 'select count(*) as total from feast where status = 1';
+    const sql1 = 'select count(*) as total from feast where status != 1 and status != 0';
     db.query(sql1, (err, result) => {
         if (err) {
             return res.err(err);
@@ -65,7 +65,7 @@ exports.getFeastList = (req, res) => {
             return res.err('暂无数据');
         }
         const total = result[0].total;
-        const sql2 = 'select a.*,b.nickname from feast a,user b where status=1 and a.user_id = b.uid limit ' + start + ',' + pageSize + '';
+        const sql2 = 'select a.*,b.nickname from feast a,user b where status != 1 and status != 0 and a.user_id = b.uid limit ' + start + ',' + pageSize + '';
         // select * from feast where online=1 
         db.query(sql2, (err, result) => {
             if (err) {
@@ -136,7 +136,7 @@ exports.checkFeast = (req, res) => {
     if (!fid) {
         return res.err('查看失败没有传入fid');
     }
-    const sql = 'select * from feast where fid = ?';
+    const sql = 'select a.*,b.nickname from feast a,user b where fid = ? and a.user_id = b.uid;';
     db.query(sql, fid, (err, result) => {
         if (err) {
             return res.err(err);
@@ -179,11 +179,11 @@ exports.updataFeast = (req, res) => {
     feast.date_time = formatDate(date);
     // 修改的sql
     const sql = 'update feast set ? where fid = ?';
-    db.query(sql,[feast,fid],(err, result)=>{
+    db.query(sql, [feast, fid], (err, result) => {
         if (err) {
             return res.err(err);
         }
-        if (result.affectedRows  !== 1) {
+        if (result.affectedRows !== 1) {
             return res.err('修改失败，请联系管理员');
         }
         res.send({
@@ -191,5 +191,47 @@ exports.updataFeast = (req, res) => {
             message: 'success',
         })
     })
-    
+
+}
+//获取团队承接的宴席
+exports.getTeamFeast = (req, res) => {
+    const id = req.query.tid;
+    if (!id) {
+        return res.err('获取失败，未传入id');
+    }
+    const sql = 'select a.*,b.nickname from feast a,user b where team_id = ? and a.user_id = b.uid;';
+    db.query(sql, id, (err, result) => {
+        if (err) {
+            return res.err(err);
+        }
+        if (result.length < 1) {
+            return res.err('暂无数据');
+        }
+        res.send({
+            code: 0,
+            message: 'success',
+            data: result
+        })
+    })
+}
+
+//完成宴席
+exports.completeFeast = (req, res) => {
+    const { fid, environment } = req.query;
+    if (!fid || !environment) {
+        return res.err('完成宴席失败,未接收到指定参数！')
+    }
+    const sql = 'update feast set environment = ?,status = 4 where fid = ?';
+    db.query(sql, [environment, fid], (err, result) => {
+        if (err) {
+            return res.err(err);
+        }
+        if (result.affectedRows !== 1) {
+            return res.err('修改失败,请联系管理员');
+        }
+        res.send({
+            code:0,
+            message:'complete success'
+        })
+    })
 }
