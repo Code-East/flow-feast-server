@@ -158,3 +158,38 @@ exports.deteleEmployee = (req, res) => {
         })
     })
 }
+
+//获取团队信息
+exports.getTeamMessage = (req,res) => {
+    const id = req.query.id;
+    if (!id) {
+        return res.err('未传入ID')
+    }
+    const sql = 'select * from feast_team where tid = ?';
+    let teamData = {};
+    db.query(sql, id,(err, result)=>{
+        if(err){
+            return res.err(err);
+        }
+        if (result.length < 1) {
+            return res.err('团队不存在！')
+        }
+        teamData.baseMessage = result[0];
+        const sql1 = "select * from employee where team_id = ?";
+        db.query(sql1, id, (err, result1)=>{
+            if(err){
+                return res.err(err);
+            }
+            if (result1.length < 1) {
+                //没有成员 为空
+                result1 = []
+            }
+            teamData.employeeList = result1;
+            res.send({
+                code:0,
+                message:'get team message success',
+                data:teamData
+            })
+        })
+    })
+}
