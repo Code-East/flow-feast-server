@@ -1,5 +1,7 @@
 const db = require('../dao/index');
 const { formatDate } = require('../utils/formateDate')
+const AlipayformData = require('alipay-sdk/lib/form').default;
+const { alipaySdk } = require('../utils/alipay');
 //获取团队列表
 exports.getFeastTeamList = (req, res) => {
     let pageSize, currentPage;
@@ -214,7 +216,79 @@ exports.getTeamFeast = (req, res) => {
         })
     })
 }
+//下单宴席
+exports.paymentFeast = (req, res) => {
+    const data = req.body;
+    if (!data) {
+        return res.err('未传入宴席对象');
+    }
+    //格式化时间
+    data.date_time = new Date(data.date_time);
+    data.status = 0;
+    data.create_time = new Date();
+    const sql = 'insert into feast set ?';
+    db.query(sql, data, (err, result) => {
+        if (err) {
+            return res.err(err);
+        }
+        if (result.affectedRows !== 1) {
+            return res.err('下单失败')
+        }
+        res.send({
+            code: 0,
+            message: 'payment success'
+        })
+    })
+}
+//付款
+exports.alipay = (req, res) => {
+    const order = req.body.order;
+    const total_amount = req.body.total;
+    const data = {};
+    //填写参数
+    data.team_id = order.team_id;
+    data.user_id = order.user_id;
+    data.order_status = 1;
+    data.goods_count = order.scale;
+    data.price = total_amount;
+    data.pay_time = new Date();
 
+    const formData = new AlipayformData();
+    formData.setMethod('get');
+    formData.addField('returnUrl', 'http://127.0.0.1:8080'); //支付成功后跳转页面
+
+    formData.addField('bizContent', {
+        out_trade_no: "21245956656" + Math.random(1, 400) + "1128",
+        product_code: "FAST_INSTANT_TRADE_PAY",
+        subject: "宴席下单",
+        body: "商品详情",
+        total_amount: total_amount
+    })
+
+    let result = alipaySdk.exec(
+        'alipay.trade.page.pay',
+        {},
+        { formData: formData }
+    );
+
+    result.then((resp) => {
+        const sql = 'insert into feast_order set ?';
+        db.query(sql, data, (err, result1) => {
+            if (err) {
+                return res.err(err);
+            }
+            if (result1.affectedRows !== 1) {
+                return res.err('下单失败！');
+            }
+            res.send({
+                sucess: 'true',
+                code: 0,
+                result: resp
+            })
+        })
+
+    })
+}
 //完成宴席
 exports.completeFeast = (req, res) => {
     const { fid, environment } = req.query;
@@ -230,8 +304,8 @@ exports.completeFeast = (req, res) => {
             return res.err('修改失败,请联系管理员');
         }
         res.send({
-            code:0,
-            message:'complete success'
+            code: 0,
+            message: 'complete success'
         })
     })
 }

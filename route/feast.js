@@ -10,7 +10,9 @@ const {
     deleteFeast,
     updataFeast,
     getTeamFeast,
-    completeFeast
+    paymentFeast,
+    completeFeast,
+    alipay
 } = require('../router_handler/feast_handler');
 
 const router = express.Router();
@@ -23,5 +25,7 @@ router.get('/check_feast',checkFeast);
 router.delete('/delete_feast',deleteFeast);
 router.post('/update_feast',updataFeast);
 router.get('/get_team_feast',getTeamFeast);
-router.get('/complete_feast',completeFeast)
+router.post('/payment_feast',paymentFeast);
+router.post('/alipay',alipay);
+router.get('/complete_feast',completeFeast);
 module.exports = router;
